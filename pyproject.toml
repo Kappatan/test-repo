@@ -1,0 +1,7 @@
+[project]
+name = "katia-task"
+version = "0.1.0"
+description = "Monorepo skeleton for a recruitment microservices test task"
+readme = "README.md"
+requires-python = ">=3.12.12"
+dependencies = []

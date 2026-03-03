@@ -1,0 +1,67 @@
+services:
+  api:
+    build:
+      context: ${API_BUILD_CONTEXT}
+      dockerfile: ${API_DOCKERFILE}
+    container_name: ${API_CONTAINER_NAME}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      APP_NAME: ${API_APP_NAME}
+      DEBUG: ${API_DEBUG}
+      HOST: ${API_HOST}
+      PORT: ${API_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET_KEY: ${API_JWT_SECRET_KEY}
+      JWT_ALGORITHM: ${API_JWT_ALGORITHM}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${API_ACCESS_TOKEN_EXPIRE_MINUTES}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      RABBITMQ_QUEUE: ${API_RABBITMQ_QUEUE}
+      RABBITMQ_ENABLED: ${API_RABBITMQ_ENABLED}
+      RABBITMQ_RECONNECT_DELAY_SECONDS: ${API_RABBITMQ_RECONNECT_DELAY_SECONDS}
+    ports:
+      - "${API_PORT}:${API_PORT}"
+    restart: ${API_RESTART_POLICY}
+
+  postgres:
+    image: ${POSTGRES_IMAGE}
+    container_name: ${POSTGRES_CONTAINER_NAME}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: ${POSTGRES_HEALTHCHECK_INTERVAL}
+      timeout: ${POSTGRES_HEALTHCHECK_TIMEOUT}
+      retries: ${POSTGRES_HEALTHCHECK_RETRIES}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    restart: ${POSTGRES_RESTART_POLICY}
+    volumes:
+      - postgres_data:${POSTGRES_DATA_PATH}
+      - ${POSTGRES_DATABASE}
+
+  rabbitmq:
+    image: ${RABBITMQ_IMAGE}
+    container_name: ${RABBITMQ_CONTAINER_NAME}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: ${RABBITMQ_HEALTHCHECK_INTERVAL}
+      timeout: ${RABBITMQ_HEALTHCHECK_TIMEOUT}
+      retries: ${RABBITMQ_HEALTHCHECK_RETRIES}
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+    restart: ${RABBITMQ_RESTART_POLICY}
+    volumes:
+      - rabbitmq_data:${RABBITMQ_DATA_PATH}
+
+volumes:
+  postgres_data:
+    name: ${POSTGRES_VOLUME_NAME}
+  rabbitmq_data:
+    name: ${RABBITMQ_VOLUME_NAME}
