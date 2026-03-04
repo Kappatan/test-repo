@@ -7,8 +7,13 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from config import get_settings
+from config import get_settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(
+    schemes=["pbkdf2_sha256"],
+    deprecated="auto",
+    pbkdf2_sha256__rounds=29000  
+)
 bearer_scheme = HTTPBearer(auto_error=False)
 
 

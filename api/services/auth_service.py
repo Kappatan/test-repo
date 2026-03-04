@@ -14,7 +14,7 @@ class AuthService:
         existing_user = self.user_repository.get_by_email(data.email)
         if existing_user:
             raise ValueError("User with this email already exists.")
-
+        print(data.password, 'auth-service')
         user = User(
             email=data.email,
             full_name=data.full_name,

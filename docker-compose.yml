@@ -5,7 +5,6 @@ services:
     image: postgres:15-alpine
     container_name: recruitment-postgres
     environment:
-      POSTGRES_DB: app_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     healthcheck:
@@ -37,6 +36,8 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     restart: unless-stopped
+    mem_limit: 512m  
+    mem_reservation: 256m 
 
   api:
     build:

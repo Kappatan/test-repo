@@ -17,6 +17,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 def register(payload: UserCreate, db: DbSession) -> UserRead:
     service = AuthService(UserRepository(db))
     try:
+        print(payload.password, 'def register')
         user = service.register(
             UserCreateDTO(
                 email=str(payload.email),
