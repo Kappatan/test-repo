@@ -54,7 +54,40 @@ def send_daily_notifications() -> None:
         print(f"[EMAIL to {email}] {text}")
         logger.info("Notification printed for manager_id=%s", manager.get("manager_id"))
 
+def send_daily_notifications() -> None:
+    """Формирует и «отправляет» письма менеджерам (вывод в консоль)."""
+    managers = _fetch_managers_new_responses()
+    if not managers:
+        logger.info("No managers data received for notifications.")
+        return
 
+    total_new_responses = 0
+    managers_with_responses = 0
+    
+    for manager in managers:
+        new_responses = int(manager.get("new_responses", 0))
+        name = manager.get("manager_name") or "коллега"
+        email = manager.get("manager_email") or "unknown"
+        
+        if new_responses > 0:
+            text = (
+                f"Здравствуйте, {name}! "
+                f"У вас {new_responses} новых откликов, требующих обработки."
+            )
+            print(f"[EMAIL to {email}] {text}")
+            logger.info(f"Notification sent to {email}: {new_responses} responses")
+            
+            total_new_responses += new_responses
+            managers_with_responses += 1
+        else:
+            logger.debug(f"Manager {name} has no new responses")
+    
+    # Агрегированная статистика для мониторинга
+    logger.info(
+        f"Daily notification summary: {managers_with_responses} managers "
+        f"have {total_new_responses} total new responses"
+    )
+    
 def main() -> None:
     logging.basicConfig(
         level=logging.DEBUG if settings.debug else logging.INFO,
